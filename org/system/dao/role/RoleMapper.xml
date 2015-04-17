@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="system.dao.role.RoleMapper" > 
+<!-- Result Map-->
+<resultMap id="BaseResultMap" type="system.entity.role.RoleEntity" >
+		<id column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="remark" property="remark" />
+		<result column="seq" property="seq" />
+		<result column="pid" property="pid" />
+</resultMap>
+
+<!-- sys_menu table all fields -->
+<sql id="Base_Column_List" >
+	  id,name,remark,seq,pid
+</sql>
+   
+<!-- 查询分页 -->
+<select id="queryBylistPage" resultMap="BaseResultMap" parameterType="Object">
+	select <include refid="Base_Column_List" />  from role
+	order by seq asc
+</select>
+
+<insert id="add" parameterType="Object">
+		INSERT INTO role
+		(id, name, remark, seq, pid)
+		VALUES(#{id}, #{name}, #{remark}, #{seq}, #{pid})
+</insert>
+
+ <!-- 删除记录 -->
+<delete id="delete" parameterType="Object">
+	delete from role where id = #{id}
+</delete>
+ 	
+<update id="update" parameterType="Object">
+		update role 
+		<set>
+	        name = #{name},  
+	        seq = #{seq},  
+	        remark = #{remark},
+            pid = #{pid}
+   		</set> 
+   		<where>
+            id = #{id}  
+	    </where>
+</update>
+ 
+ <select id="queryById" resultMap="BaseResultMap" parameterType="Object">
+	select <include refid="Base_Column_List" />  from role
+	where id = #{id}
+</select>
+ 
+  <!-- 查询所有的角色 -->
+<select id="queryAllRoleList" resultMap="BaseResultMap" parameterType="Map">
+	select <include refid="Base_Column_List" />  from role
+</select>
+ 
+ <!-- 查询用户对应的角色 -->
+<select id="queryUserRoleList" resultMap="BaseResultMap" parameterType="Map">
+	select DISTINCT r.*  from role r, user_role ur
+	where r.id = ur.role_id
+		<if test="user_id!=null and user_id!=''">
+				and ur.user_id = #{user_id}
+		</if>
+</select>
+
+
+	<!-- 把角色和菜单的关联表数据先清空 -->
+	<delete id="deleteRoleAndResourceByRid" parameterType="string">
+		DELETE FROM role_resource WHERE role_id = #{id}
+	</delete>
+	
+	<!-- 再把角色和菜单的关联关系保存 -->	
+	<insert id="saveRoleAndResource" parameterType="java.util.List">
+		INSERT INTO role_resource
+		(role_id, resource_id)
+		VALUES
+		<foreach collection="list" index="index" item="urL" separator="," >   
+			(#{urL.roleId}, #{urL.resourceId})
+		</foreach>
+	</insert>
+
+</mapper>   

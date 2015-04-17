@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="system.dao.dictype.DictypeMapper" > 
+<!-- Result Map-->
+<resultMap id="BaseResultMap" type="system.entity.dictype.DicTypeEntity" >
+		<id column="uid" property="uid" />
+		<result column="id" property="id" />
+		<result column="text" property="text" />
+		<result column="remark" property="remark" />
+		<result column="seq" property="seq" />
+		<result column="pid" property="pid" />
+</resultMap>
+
+<!-- 扩展字段 -->
+<resultMap id="ExtResultMap" extends="BaseResultMap" type="system.entity.dictype.DicTypeEntity" >
+	<result column="subCount" property="subCount"/>
+</resultMap>
+
+<!-- sys_menu table all fields -->
+<sql id="Base_Column_List" >
+	  id,text,remark,seq,pid,uid
+</sql>
+ 
+ <update id="update" parameterType="Object">
+		update dictype 
+		<set>
+	        text = #{text},  
+	        seq = #{seq},  
+	        remark = #{remark},
+	        id = #{id},
+            pid = #{pid}
+   		</set> 
+   		<where>
+   			uid = #{uid}
+	    </where>
+</update>
+
+ <!-- 删除记录 -->
+<delete id="delete" parameterType="Object">
+	delete from dictype where id = #{id}
+</delete>
+
+ <!-- 提供父菜单id删除所有子菜单项 -->
+<delete id="deleteByPid" parameterType="Object">
+	delete from dictype where pid = #{pid}
+</delete>
+ 
+<select id="queryById" resultMap="BaseResultMap" parameterType="Object">
+	select <include refid="Base_Column_List" />  from dictype
+	where id = #{id}
+</select>
+ 
+<select id="getEntityByUid" resultMap="BaseResultMap" parameterType="Object">
+	select <include refid="Base_Column_List" />  from dictype
+	where uid = #{uid}
+</select>
+
+ <!-- 查询分页 -->
+<select id="queryPlistPage" resultMap="ExtResultMap" parameterType="Object">
+	select <include refid="Base_Column_List" /> 
+	,(SELECT COUNT(1) FROM dictype c  WHERE c.pid = m.id) AS subCount
+	 from dictype m where m.pid = '0'
+	 order by seq asc
+</select>
+   
+<!-- 查询分页 -->
+<select id="queryBylistPage" resultMap="ExtResultMap" parameterType="Map">
+	select <include refid="Base_Column_List" /> 
+	,(SELECT COUNT(1) FROM dictype c  WHERE c.pid = m.id) AS subCount
+	 from dictype m
+	 <where>
+			<if test="pid!=null  and pid!=''">
+				and m.pid = #{pid}
+			</if>			
+	</where>
+	order by seq asc
+</select>
+
+<insert id="add" parameterType="Object">
+		INSERT INTO dictype
+		(uid, id, text, remark, seq, pid)
+		VALUES(#{uid}, #{id}, #{text}, #{remark}, #{seq}, #{pid})
+</insert>
+ 
+
+ <!-- 查询所有的菜单 -->
+<select id="queryAllDictypeList" resultMap="BaseResultMap" parameterType="Map">
+	select <include refid="Base_Column_List" /> from dictype
+	<where>
+			<if test="pid!=null  and pid!=''">
+				and pid = #{pid}
+			</if>			
+	</where>
+</select>
+</mapper>   

@@ -1,0 +1,9 @@
+@charset "utf-8";
+/* CSS Document */
+/*good_plane*/
+.goods_plane{overflow:hidden;width:100%;margin:20px 0;}
+.owner_goods{line-height:32px;color:#555;float:left;font-weight:bold;font-size:14px;font-family:Microsoft YaHei;}
+.owner_input{width:72% !important;}
+.kinds_goods{margin:10px auto 0;overflow:hidden;min-width:230px !important;}
+.button_goods{margin:10px auto 0;max-width:75px;}
+

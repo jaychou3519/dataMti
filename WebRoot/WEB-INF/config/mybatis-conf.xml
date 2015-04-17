@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-config.dtd">  
+<configuration>  
+    <!-- plugin标签将起到拦截将要进行的数据访问 ，并对sql语句进行处理 -->
+    <!-- dialect 指定访问的数据库种类  数据方言 -->
+    <!-- pageSqlId 指定拦截sql的id的特性 -->
+    <plugins>  
+	    <plugin interceptor="utils.pageplugin.PagePlugin">  
+	        <property name="dialect" value="mysql"/>  
+	        <property name="pageSqlId" value=".*listPage.*"/>  
+   		</plugin>  
+	</plugins>
+</configuration>

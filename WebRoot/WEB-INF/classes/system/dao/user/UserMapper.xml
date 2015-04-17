@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="system.dao.user.UserMapper" > 
+<!-- Result Map-->
+<resultMap id="BaseResultMap" type="system.entity.user.UserEntity" >
+		<result column="id" property="id"/>
+		<result column="createtime" property="createtime" />
+		<result column="updatetime" property="updatetime" />
+		<result column="name" property="name" />
+		<result column="pwd" property="pwd" />
+		<result column="type" property="type" />
+</resultMap>
+
+<!-- sys_menu table all fields -->
+<sql id="Base_Column_List" >
+	  id,name,pwd,createtime,updatetime,type
+</sql>
+
+<!-- 登录-->
+<select id="login" resultMap="BaseResultMap" parameterType="Object">
+	select <include refid="Base_Column_List" />  from user
+	<where>
+			<if test="name!=null  and name!=''">
+				and name = #{name}
+			</if>
+			<if test="pwd!=null and pwd!=''">
+				and pwd = #{pwd}
+			</if>
+	</where>
+	
+</select>
+   
+<!-- 查询分页 -->
+<select id="queryBylistPage" resultMap="BaseResultMap" parameterType="Object">
+	select <include refid="Base_Column_List" />  from user
+</select>
+
+<insert id="add" parameterType="Object">
+		INSERT INTO user
+		(id, name, pwd, createtime, updatetime, type)
+		VALUES(#{id}, #{name}, #{pwd}, #{createtime}, #{updatetime}, #{type})
+</insert>
+ 
+ <!-- 删除记录 -->
+<delete id="delete" parameterType="Object">
+	delete from user where id = #{id}
+</delete>
+ 
+ <!-- 登录-->
+<select id="getEntity" resultMap="BaseResultMap" parameterType="Object">
+	select <include refid="Base_Column_List" />  from user
+	<where>
+			<if test="id!=null and id!=''">
+				and id = #{id}
+			</if>
+			<if test="name!=null  and name!=''">
+				and name = #{name}
+			</if>
+			<if test="pwd!=null and pwd!=''">
+				and pwd = #{pwd}
+			</if>
+	</where>
+</select>
+
+<select id="queryById" resultMap="BaseResultMap" parameterType="Object">
+	select <include refid="Base_Column_List" />  from user
+	where id = #{id}
+</select>
+
+	<!-- 把用户和用户下的角色的关联表数据先清空 -->
+	<delete id="deleteUserAndRoleByUid" parameterType="string">
+		DELETE FROM user_role WHERE user_id = #{id}
+	</delete>
+	
+	<!-- 再把用户和用户下的角色的关联关系保存 -->	
+	<insert id="saveUserAndRole" parameterType="java.util.List">
+		INSERT INTO user_role
+		(role_id, user_id)
+		VALUES
+		<foreach collection="list" index="index" item="urL" separator="," >   
+			(#{urL.roleId}, #{urL.userId})
+		</foreach>
+	</insert>
+	
+<update id="update" parameterType="Object">
+		update user 
+		<set>
+	        name = #{name},  
+	        pwd = #{pwd},  
+	        createtime = #{createtime},
+            updatetime = #{updatetime},
+            type = #{type}
+   		</set> 
+   		<where>
+            id = #{id}  
+	    </where>
+</update>
+</mapper>   

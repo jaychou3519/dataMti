@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="system.dao.resource.ResourceMapper" > 
+<!-- Result Map-->
+<resultMap id="BaseResultMap" type="system.entity.resource.ResourceEntity" >
+		<id column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="remark" property="remark" />
+		<result column="seq" property="seq" />
+		<result column="pid" property="pid" />
+		<result column="url" property="url" />
+		<result column="imgurl" property="imgurl" />
+</resultMap>
+
+<!-- 扩展字段 -->
+<resultMap id="ExtResultMap" extends="BaseResultMap" type="system.entity.resource.ResourceEntity" >
+	<result column="subCount" property="subCount"/>
+</resultMap>
+
+<!-- sys_menu table all fields -->
+<sql id="Base_Column_List" >
+	  id,name,remark,seq,pid,url,imgurl
+</sql>
+ 
+ <update id="update" parameterType="Object">
+		update resource 
+		<set>
+	        name = #{name},  
+	        seq = #{seq},  
+	        remark = #{remark},
+	        url = #{url},
+	        imgurl = #{imgurl},
+            pid = #{pid}
+   		</set> 
+   		<where>
+            id = #{id}  
+	    </where>
+</update>
+ 
+ <select id="queryById" resultMap="BaseResultMap" parameterType="Object">
+	select <include refid="Base_Column_List" />  from resource
+	where id = #{id}
+</select>
+ 
+ <!-- 查询分页 -->
+<select id="queryPlistPage" resultMap="ExtResultMap" parameterType="Map">
+	select <include refid="Base_Column_List" /> 
+	,(SELECT COUNT(1) FROM resource c  WHERE c.pid = m.id) AS subCount
+	 from resource m where m.pid = '0'
+	 order by seq asc
+		
+</select>
+   
+<!-- 查询分页 -->
+<select id="queryBylistPage" resultMap="ExtResultMap" parameterType="Map">
+	select <include refid="Base_Column_List" /> 
+	,(SELECT COUNT(1) FROM resource c  WHERE c.pid = m.id) AS subCount
+	 from resource m
+	 <where>
+			<if test="pid!=null  and pid!=''">
+				and m.pid = #{pid}
+			</if>			
+	</where>
+	order by seq asc
+</select>
+
+<!-- 查询用户菜单 -->
+<select id="queryByAllList" resultMap="BaseResultMap" parameterType="String">
+	SELECT <include refid="Base_Column_List" />  FROM resource r
+		WHERE r.id IN 
+			(SELECT rr.resource_id FROM role_resource rr
+				WHERE rr.role_id IN (
+					SELECT r.id FROM role r
+						WHERE r.id IN (
+							SELECT role_id FROM user_role ur
+							WHERE
+								ur.user_id = #{userid }
+						)
+				)
+			 );
+</select>
+
+
+<insert id="add" parameterType="Object">
+		INSERT INTO resource
+		(id, name, remark, seq, pid, url)
+		VALUES(#{id}, #{name}, #{remark}, #{seq}, #{pid}, #{url})
+</insert>
+ 
+ <!-- 删除记录 -->
+<delete id="delete" parameterType="Object">
+	delete from resource where id = #{id}
+</delete>
+
+ <!-- 提供父菜单id删除所有子菜单项 -->
+<delete id="deleteByPid" parameterType="Object">
+	delete from resource where pid = #{pid}
+</delete>
+
+  <!-- 查询用户的菜单 -->
+<select id="queryUserResourceList" resultMap="BaseResultMap" parameterType="Map">
+	select DISTINCT r.*  from resource r, role_resource rr, user_role ur
+	where r.id = rr.resource_id and rr.role_id = ur.role_id
+		<if test="user_id!=null and user_id!=''">
+				and ur.user_id = #{user_id}
+		</if>
+		<if test="role_id!=null and role_id!='admin'">
+				and ur.role_id = #{role_id}
+		</if>
+</select>
+
+ <!-- 查询所有的菜单 -->
+<select id="queryAllResourceList" resultMap="BaseResultMap" parameterType="Map">
+	select <include refid="Base_Column_List" /> from resource
+</select>
+</mapper>   
