@@ -9,6 +9,7 @@ public class Email implements Serializable {
 	private String receiver;
 	private String title;
 	private String content;
+	private String aaa;
 
 	public Email(String receiver, String title, String content) {
 		this.receiver = receiver;
