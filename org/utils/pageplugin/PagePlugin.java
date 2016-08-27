@@ -170,6 +170,11 @@ public class PagePlugin implements Interceptor {
                 pageSql.append(page.getCurrentResult()+page.getRows());  
                 pageSql.append(") where row_id>");  
                 pageSql.append(page.getCurrentResult());
+            }else if ("sqlserver".equals(dialect)){
+            	pageSql.append("select top ").append(page.getRows());
+            	pageSql.append(" * from (select row_number() over(order by id) as rownumber,");
+            	sql = sql.substring(sql.indexOf(" "), sql.length());
+            	pageSql.append(sql).append(") A where rownumber > ").append(page.getCurrentResult()*page.getRows());
             }  
             return pageSql.toString();  
         }else{
